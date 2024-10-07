@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong!Passw0rd
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserverdata:/var/opt/mssql
+    networks:
+      - sqlserver_network
+
+  app:
+    build: ./app
+    container_name: app
+    environment:
+      - DB_USER=sa
+      - DB_PASSWORD=YourStrong!Passw0rd
+      - DB_SERVER=sqlserver
+      - DB_DATABASE=master
+    working_dir: /usr/src/app
+    depends_on:
+      - sqlserver
+    networks:
+      - sqlserver_network
+    ports:
+      - "3000:3000"
+
+volumes:
+  sqlserverdata:
+
+networks:
+  sqlserver_network:
+    driver: bridge
